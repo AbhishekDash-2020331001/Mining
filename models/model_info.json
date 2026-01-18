@@ -1,0 +1,145 @@
+{
+  "model_info": {
+    "num_models": 5,
+    "selected_models": [
+      {
+        "model_name": "LinearRegression_OLS",
+        "features": [
+          "W",
+          "R",
+          "enq3",
+          "enq5"
+        ],
+        "train_r2": 0.669911068030566,
+        "val_r2": 0.7318893055271091,
+        "r2_gap": 0.061978237496543076
+      },
+      {
+        "model_name": "LinearRegression_OLS",
+        "features": [
+          "R",
+          "SD",
+          "enq3",
+          "enq5"
+        ],
+        "train_r2": 0.6696168022076451,
+        "val_r2": 0.8785142683092744,
+        "r2_gap": 0.2088974661016293
+      },
+      {
+        "model_name": "LinearRegression_OLS",
+        "features": [
+          "W",
+          "SD",
+          "enq3",
+          "enq5"
+        ],
+        "train_r2": 0.6692929169540578,
+        "val_r2": 0.7063492965303103,
+        "r2_gap": 0.03705637957625252
+      },
+      {
+        "model_name": "LinearRegression_OLS",
+        "features": [
+          "W",
+          "enq1",
+          "enq3",
+          "enq5"
+        ],
+        "train_r2": 0.6692698260435063,
+        "val_r2": 0.6629102486931677,
+        "r2_gap": -0.006359577350338541
+      },
+      {
+        "model_name": "LinearRegression_OLS",
+        "features": [
+          "R",
+          "enq2",
+          "enq3",
+          "enq5"
+        ],
+        "train_r2": 0.6692628529343283,
+        "val_r2": 0.789303781033017,
+        "r2_gap": 0.12004092809868872
+      }
+    ],
+    "total_features": 10,
+    "train_samples": 42,
+    "val_samples": 7,
+    "test_samples": 7
+  },
+  "metrics": {
+    "train": {
+      "r2": 0.6706252240600057,
+      "rmse": 1.5913551259282628,
+      "mae": 1.068456421814686,
+      "mae_pct": 26.451929711058668
+    },
+    "validation": {
+      "r2": 0.7724511830380392,
+      "rmse": 2.8724413265147857,
+      "mae": 2.482858183210785
+    },
+    "test": {
+      "r2": -0.19590934737380516,
+      "rmse": 3.779052397827909,
+      "mae": 3.4159679675457504,
+      "mae_pct": 69.36981657331086,
+      "coverage_ratio": 0.0,
+      "train_mae": 1.068456421814686
+    }
+  },
+  "best_models": [
+    {
+      "model_name": "LinearRegression_OLS",
+      "features": [
+        "W",
+        "R",
+        "enq3",
+        "enq5"
+      ]
+    },
+    {
+      "model_name": "LinearRegression_OLS",
+      "features": [
+        "R",
+        "SD",
+        "enq3",
+        "enq5"
+      ]
+    },
+    {
+      "model_name": "LinearRegression_OLS",
+      "features": [
+        "W",
+        "SD",
+        "enq3",
+        "enq5"
+      ]
+    },
+    {
+      "model_name": "LinearRegression_OLS",
+      "features": [
+        "W",
+        "enq1",
+        "enq3",
+        "enq5"
+      ]
+    },
+    {
+      "model_name": "LinearRegression_OLS",
+      "features": [
+        "R",
+        "enq2",
+        "enq3",
+        "enq5"
+      ]
+    }
+  ],
+  "csv_info": {
+    "filename": "upload_6678631556376805782.csv",
+    "upload_date": "2026-01-18T23:49:21.592647",
+    "size_bytes": 746,
+    "rows": null
+  }
+}
