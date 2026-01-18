@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional, Dict, Any
 
 class PredictionRequest(BaseModel):
@@ -18,6 +18,8 @@ class TrainingResponse(BaseModel):
     model_info: Optional[Dict[str, Any]] = None
 
 class ModelStatusResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     model_exists: bool
     model_info: Optional[Dict[str, Any]] = None
 

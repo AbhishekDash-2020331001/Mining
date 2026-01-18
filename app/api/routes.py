@@ -6,6 +6,9 @@ from app.services.training import TrainingService
 from app.services.prediction import PredictionService
 from app.services.model_manager import ModelManager
 import io
+import zipfile
+import tempfile
+from pathlib import Path
 
 router = APIRouter()
 training_service = TrainingService()
@@ -160,3 +163,58 @@ async def health_check():
         "service": "mining-prediction-api",
         "model_exists": model_manager.model_exists()
     }
+
+@router.get("/models/download")
+async def download_models():
+    """
+    Download all model files as a ZIP bundle for local storage.
+    Includes: trained_models.joblib, model_info.json, model_params.json, training_data.csv
+    """
+    try:
+        if not model_manager.model_exists():
+            raise HTTPException(
+                status_code=404,
+                detail="No trained model found. Please train a model first."
+            )
+        
+        # Create temporary ZIP file
+        temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+        zip_path = temp_zip.name
+        temp_zip.close()
+        
+        # Create ZIP archive with all model files
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            models_dir = model_manager.models_dir
+            
+            # Add model files if they exist
+            files_to_add = [
+                ("trained_models.joblib", "trained_models.joblib"),
+                ("model_info.json", "model_info.json"),
+                ("model_params.json", "model_params.json"),
+                ("training_data.csv", "training_data.csv")
+            ]
+            
+            for filename, zip_name in files_to_add:
+                file_path = models_dir / filename
+                if file_path.exists():
+                    zipf.write(file_path, zip_name)
+        
+        # Read ZIP file content
+        with open(zip_path, 'rb') as f:
+            zip_content = f.read()
+        
+        # Clean up temp file
+        Path(zip_path).unlink()
+        
+        return Response(
+            content=zip_content,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": "attachment; filename=mining_model_bundle.zip"
+            }
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
