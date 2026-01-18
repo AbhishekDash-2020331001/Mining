@@ -45,8 +45,37 @@ class TrainingService:
         Train the mining prediction model.
         Returns metrics and model info.
         """
-        # Remove rows with zero values
-        df_clean = df[(df != 0).all(axis=1)].copy()
+        # Store original row count for reporting
+        original_rows = len(df)
+        
+        # Remove rows with NaN values in any column
+        df_clean = df.dropna().copy()
+        nan_dropped = original_rows - len(df_clean)
+        
+        # Remove rows with zero values (in R, W, or PPV columns)
+        # Only check required columns (R, W, PPV)
+        required_cols = ['R', 'W', 'PPV']
+        rows_before_zero = len(df_clean)
+        df_clean = df_clean[(df_clean[required_cols] != 0).all(axis=1)].copy()
+        zero_dropped = rows_before_zero - len(df_clean)
+        final_rows = len(df_clean)
+        
+        # Store cleaning info for response
+        cleaning_info = {
+            "original_rows": original_rows,
+            "nan_dropped": nan_dropped,
+            "zero_dropped": zero_dropped,
+            "final_rows": final_rows
+        }
+        
+        # Validate that we have enough data after cleaning
+        if final_rows < 10:
+            raise ValueError(
+                f"Not enough data after cleaning. Started with {original_rows} rows, "
+                f"removed {nan_dropped} rows with NaN, "
+                f"removed {zero_dropped} rows with zero values. "
+                f"Only {final_rows} rows remaining. Need at least 10 rows for training."
+            )
         
         # Split data: 75% train, 12.5% val, 12.5% test
         train_df, temp_df = train_test_split(
@@ -267,6 +296,7 @@ class TrainingService:
         
         return {
             "metrics": metrics,
-            "model_info": model_info
+            "model_info": model_info,
+            "cleaning_info": cleaning_info
         }
 

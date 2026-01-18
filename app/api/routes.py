@@ -38,9 +38,29 @@ async def train_model(file: UploadFile = File(...)):
         csv_filename = file.filename or "training_data.csv"
         result = training_service.train_model(df, csv_content=contents, csv_filename=csv_filename)
         
+        # Create message with cleaning info
+        cleaning_info = result.get("cleaning_info", {})
+        original_rows = cleaning_info.get("original_rows", 0)
+        nan_dropped = cleaning_info.get("nan_dropped", 0)
+        zero_dropped = cleaning_info.get("zero_dropped", 0)
+        final_rows = cleaning_info.get("final_rows", 0)
+        
+        message = "Model trained successfully"
+        if nan_dropped > 0 or zero_dropped > 0:
+            message += f". Cleaned data: {original_rows} → {final_rows} rows"
+            if nan_dropped > 0:
+                message += f" (removed {nan_dropped} with NaN"
+            if zero_dropped > 0:
+                if nan_dropped > 0:
+                    message += f", {zero_dropped} with zero"
+                else:
+                    message += f" (removed {zero_dropped} with zero"
+            if nan_dropped > 0 or zero_dropped > 0:
+                message += ")"
+        
         return TrainingResponse(
             status="success",
-            message="Model trained successfully",
+            message=message,
             metrics=result.get("metrics"),
             model_info=result.get("model_info")
         )
