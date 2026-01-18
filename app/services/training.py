@@ -52,11 +52,9 @@ class TrainingService:
         df_clean = df.dropna().copy()
         nan_dropped = original_rows - len(df_clean)
         
-        # Remove rows with zero values (in R, W, or PPV columns)
-        # Only check required columns (R, W, PPV)
-        required_cols = ['R', 'W', 'PPV']
+        # Remove rows with zero values in ANY column (matches notebook Cell 1: df = df[(df != 0).all(axis=1)])
         rows_before_zero = len(df_clean)
-        df_clean = df_clean[(df_clean[required_cols] != 0).all(axis=1)].copy()
+        df_clean = df_clean[(df_clean != 0).all(axis=1)].copy()
         zero_dropped = rows_before_zero - len(df_clean)
         final_rows = len(df_clean)
         
@@ -86,9 +84,14 @@ class TrainingService:
         )
         
         # Generate all features
+        # NOTE: Optimize features ONLY on train_df (matches notebook Cell 3-20)
+        # Then apply the same parameters to val_df and test_df
         train_features, feature_params = self.feature_eng.generate_all_features(train_df)
-        val_features, _ = self.feature_eng.generate_all_features(val_df)
-        test_features, _ = self.feature_eng.generate_all_features(test_df)
+        
+        # Compute features for val_df and test_df using parameters optimized on train_df
+        # (matches notebook: features optimized once on train_df, then applied to all splits)
+        val_features = self.feature_eng.compute_features_from_params_for_df(val_df, feature_params)
+        test_features = self.feature_eng.compute_features_from_params_for_df(test_df, feature_params)
         
         # Add features to dataframes
         for feature_name, feature_values in train_features.items():
@@ -233,19 +236,18 @@ class TrainingService:
         }
         
         # Calculate uncertainty bands (for test set)
-        errors_train = np.abs(train_df["PPV"].values - train_prediction)
-        train_mae_value = np.mean(errors_train)
-        alpha = 1.8  # safety factor
-        test_min = test_prediction - alpha * train_mae_value
-        test_max = test_prediction + alpha * train_mae_value
+        # Use the train_mae already calculated above (matches notebook Cell 30)
+        alpha = 1.8  # safety factor (matches notebook Cell 32)
+        test_min = test_prediction - alpha * train_mae
+        test_max = test_prediction + alpha * train_mae
         
-        # Coverage ratio
+        # Coverage ratio (matches notebook Cell 30: ensemble_range_mae function)
         coverage = np.mean(
             (test_df["PPV"].values >= test_min) & (test_df["PPV"].values <= test_max)
         )
         
         metrics["test"]["coverage_ratio"] = float(coverage)
-        metrics["test"]["train_mae"] = float(train_mae_value)
+        metrics["test"]["train_mae"] = float(train_mae)  # Store the train_mae used for uncertainty bands
         
         # Model info
         model_info = {

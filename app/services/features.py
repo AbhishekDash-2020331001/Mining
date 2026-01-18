@@ -356,6 +356,54 @@ class FeatureEngineering:
         
         return features, params
     
+    def compute_features_from_params_for_df(self, df: pd.DataFrame, params: Dict) -> Dict[str, np.ndarray]:
+        """
+        Compute all features for a dataframe using pre-optimized parameters.
+        This matches the notebook: features optimized on train_df, then applied to val_df and test_df.
+        """
+        W = df["W"].values
+        R = df["R"].values
+        
+        features = {}
+        
+        # W and R are features themselves
+        features["W"] = W
+        features["R"] = R
+        
+        # SD (computed first to match notebook order)
+        features["SD"] = self.compute_SD(W, R)
+        
+        # Compute each feature using saved parameters
+        # enq1
+        p1 = params.get("enq1", {})
+        features["enq1"] = self.compute_enq1(W, R, p1.get("k", 1.0), p1.get("b", 1.0))
+        
+        # enq2
+        p2 = params.get("enq2", {})
+        features["enq2"] = self.compute_enq2(W, R, p2.get("k", 1.0), p2.get("b", 1.0))
+        
+        # enq3
+        p3 = params.get("enq3", {})
+        features["enq3"] = self.compute_enq3(W, R, p3.get("k", 1.0), p3.get("b", 1.0))
+        
+        # enq4
+        p4 = params.get("enq4", {})
+        features["enq4"] = self.compute_enq4(W, R, p4.get("k", 1.0), p4.get("b", 1.0))
+        
+        # enq5
+        p5 = params.get("enq5", {})
+        features["enq5"] = self.compute_enq5(W, R, p5.get("k", 1.0), p5.get("b", 1.0), p5.get("alpha", 0.1))
+        
+        # enq6
+        p6 = params.get("enq6", {})
+        features["enq6"] = self.compute_enq6(W, R, p6.get("k", 1.0), p6.get("b", 1.0), p6.get("alpha", 0.1))
+        
+        # enq7
+        p7 = params.get("enq7", {})
+        features["enq7"] = self.compute_enq7(W, R, p7.get("k", 1.0), p7.get("b", 1.0), p7.get("alpha", 0.1))
+        
+        return features
+    
     def compute_features_from_params(self, W: float, R: float, params: Dict) -> Dict[str, float]:
         """
         Compute all features for a single R, W pair using saved parameters.
